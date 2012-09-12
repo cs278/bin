@@ -1,8 +1,0 @@
-#!/bin/bash
-FILE="/tmp/${USER}_pda_disable";
-
-if [ "$1" == "file" ]; then
-	echo $FILE;
-else
-	touch $FILE;
-fi
