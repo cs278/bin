@@ -1,0 +1,21 @@
+#!/bin/bash
+
+URL="http://192.168.1.254/cgi/b/info/restart/";
+USER="root";
+
+while [ -z $PASSWORD ];
+do
+	read -sp 'Password: ' PASSWORD
+done
+
+ARGS="--silent --user $USER:$PASSWORD $URL";
+KEY=$(curl $ARGS | grep "<input type='hidden' name='2'" | sed "s/.*value='\(.*\)'.*/\1/");
+
+curl --data "0=17&1=&2=$KEY" $ARGS | grep -i 'Restarting System' > /dev/null
+
+if [ $? == 1 ];
+then
+	echo "Failed" >&2
+	exit 1
+fi
+

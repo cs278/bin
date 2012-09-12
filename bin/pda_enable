@@ -1,0 +1,3 @@
+#!/bin/bash
+FILE=$(~/bin/pda_disable file);
+rm $FILE;

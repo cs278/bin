@@ -1,0 +1,188 @@
+#!/usr/bin/php
+<?php
+
+//declare(ticks = 1);
+
+define('TMP', '/tmp/');
+define('SVN_REPOS', 'http://r3-born.svn.sourceforge.net/svnroot/r3-born');
+define('SVN_REPOS_NAME', 'R3-Born');
+define('SVN_HOMEPAGE', 'http://r3-born.project-minerva.org/');
+define('SVN_RSS_DESC', 'SVN Commit Log');
+define('SVN_RSS_LANG', 'en-uk');
+define('SVN_RSS_COPYRIGHT', '2006-2007 Flexion.Org');
+define('SVN_RSS_EMAIL_DOMAIN', 'users.sourceforge.net');
+define('SVN_RSS_WEBMASTER', 'chris@project-minerva.org (Chris Smith)');
+define('SVN_RSS_URL_VIEW_REV', 'http://r3-born.svn.sourceforge.net/viewvc/r3-born?view=rev&amp;revision=');
+
+define('CMD_SVN_LOG', '/usr/bin/svn log --verbose --xml --limit 25 $1%s > $2%s');
+define('CMD_XSLTPROC', '/usr/bin/xsltproc %1$s %2$s > %3$s');
+define('CMD_SYNC', '/usr/bin/rsync %1$s project-minerva.org:~/httpdocs/feeds/r3-born-svn.xml');
+
+/**
+define('SVN_XSLT', <<<EOT
+<?xml version="1.0"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:date="http://exslt.org/dates-and-times" xmlns:func="http://exslt.org/functions" xmlns:str="http://exslt.org/strings" extension-element-prefixes="date func str" version="1.0">
+
+<!-- 
+svnlog.xslt by Martin Pittenauer / TheCodingMonkeys            
+Web: www.codingmonkeys.de, Mail: map@codingmonkeys.de                                           
+
+iso->rfc822 date conversion code heavily inspired by Steven Engelhardt (http://www.deez.info/sengelha/)
+Tested with libxslt.
+-->
+
+    <xsl:output omit-xml-declaration="no" indent="yes" encoding="UTF-8" method="xml" />       
+    
+    <xsl:template match="log">
+      <rss version="2.0">
+           <channel>
+                <title>%1\$s</title> <!-- put your repository name here -->
+                <link>%2\$s</link> <!-- put your project homepage here -->
+                <description>%3\$s</description>
+                <language>%4\$s</language>
+                <copyright>%5\$s</copyright> <!-- put your company here -->
+                <generator>PHP5 script using a deriavative of svnlog.xslt</generator>
+		<webMaster>%8\$s</webMaster>
+		<pubDate>%10\$s</pubDate>
+                <xsl:apply-templates select="logentry" />
+           </channel>
+      </rss>
+    </xsl:template>
+    
+    <xsl:template match="logentry">
+      <item>
+           <title>Revision <xsl:value-of select="@revision"/> by <xsl:value-of select="author" /></title>
+           <pubDate>
+            <xsl:call-template name="rfc822">
+                <xsl:with-param name="isodate" select="date" />
+            </xsl:call-template>
+           </pubDate>
+           <link>%9\$s<xsl:value-of select="@revision"/></link>
+           <guid isPermaLink="false">
+            <xsl:call-template name="rfc822">
+                <xsl:with-param name="isodate" select="date" />
+            </xsl:call-template>
+           </guid>
+           <!-- Accoring to RSS 2.0 specs, author has to be an rfc822 valid email address -->
+           <author><xsl:value-of select="author" />@%6\$s</author>
+<!--  disable-output-escaping="yes" -->
+           <description>&lt;div style="white-space:pre"&gt;<xsl:value-of select="msg" />&lt;/div&gt;&lt;br/&gt;
+                (&lt;em&gt;<xsl:call-template name="rfc822">
+                    <xsl:with-param name="isodate" select="date" />
+                </xsl:call-template>&lt;/em&gt;)&lt;br/&gt;&lt;br/&gt;
+                &lt;table&gt;<xsl:apply-templates select="paths/path" />&lt;/table&gt;
+           </description>
+      </item>
+    </xsl:template>
+         
+    <xsl:template match="paths/path">
+        &lt;tr&gt;&lt;td&gt;&lt;strong&gt;<xsl:call-template name="svncommand"><xsl:with-param name="command" select="@action" /></xsl:call-template>&lt;/strong&gt;&lt;/td&gt;
+        &lt;td&gt;&amp;nbsp;&lt;a href="%7\$s<xsl:value-of select="."/>"&gt;<xsl:value-of select="."/>&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt; <!-- put link to your repository here -->
+    </xsl:template>
+
+    <xsl:template name="rfc822">
+        <xsl:param name="isodate" />
+        <xsl:variable name="dayOfWeek" select="date:day-abbreviation(\$isodate)" />
+        <xsl:variable name="day" select="date:day-in-month(\$isodate)" />
+        <xsl:variable name="monthAbbr" select="date:month-abbreviation(\$isodate)" />
+        <xsl:variable name="year" select="date:year(\$isodate)" />
+        <xsl:variable name="hour" select="date:hour-in-day(\$isodate)" />
+        <xsl:variable name="minute" select="date:minute-in-hour(\$isodate)" />
+        <xsl:variable name="second" select="round(date:second-in-minute(\$isodate))" />
+
+        <xsl:value-of select="\$dayOfWeek" />
+        <xsl:text>, </xsl:text>
+        <xsl:value-of select="\$day" />
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="\$monthAbbr" />
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="\$year" />
+        <xsl:choose>
+            <xsl:when test="\$hour and \$minute and \$second">
+                <xsl:text> </xsl:text>
+                <xsl:value-of select="str:align(\$hour, '00', 'right')" />
+                <xsl:text>:</xsl:text>
+                <xsl:value-of select="str:align(\$minute, '00', 'right')" />
+                <xsl:text>:</xsl:text>
+                <xsl:value-of select="str:align(\$second, '00', 'right')" />
+                <xsl:text> GMT</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text> 00:00:00 GMT</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    
+    <xsl:template name="svncommand">
+        <xsl:param name="command"/>
+        <xsl:choose>
+           <xsl:when test="\$command = 'A'">Added</xsl:when>
+           <xsl:when test="\$command = 'D'">Deleted</xsl:when>
+           <xsl:when test="\$command = 'M'">Modified</xsl:when>
+        </xsl:choose>
+    </xsl:template>
+
+</xsl:stylesheet>
+EOT
+);
+echo base64_encode(gzcompress(SVN_XSLT, 9)), "\n";
+//echo SVN_XSLT;
+exit;
+//*/
+/**/
+define('SVN_XSLT', gzuncompress(base64_decode('eNrNWG1v2zYQ/lz/Ck6ImwSIrDRdt8a1tQbrXj40WNBk6L7S0tniKpECSdvRfv3uSNmWZdmJW2CYERgSeffc23NHOqOfHoucLUAboeQ4eDW4DH6Ke6NHkw+NrXIwGYBlKCPNEBfHQWZtOYyi5XI5WL4eKD2LXl1fX0d/3X+MHjSXZqp0EdQKKbew1gBUt06Blk3IZRpaUYBZSU/nMumQpmWLzq3ljNUdYrgq5AyF4NGCpGhCyKEAacNSw1Q8ghkHZJkRIEPxYDvsuNcbfReGrGcWMlezASGzScVuubZCsjthEZfPQbOIPWTws0rR3q2SX6AyrPHpfYbJkFF+EidSeJFBCheIJfIhK3j5vr3Hnv/p9YRRYaynydurK+ZCSpSsY8FHBMuAL0ReMSFNKTSkFMe9hQVI9oucQZ5xnVp21qhlCvDPQMipigx4iei89wDGovJS2IzlYuJy3QtDzBT54Uii5racW6YKYUMsT5hCknPNrUurVAG6kGINxkFFhQbp4x4Hfz78Gr4NWAE2U+k4QNWARfEqwvWXs2GhKHMKs+A2ycYBVger5UVH2phNHa9cHRu5GiUZlxLyrUW/Y4XNIe6/OjGjyD8zV38Kp1JzzTSUygirdMUkLyipGhhFvwOVC/kl7l8RkntsAZVa/Q2JZZkqoOSzQ0gpmESLktIX918TYHOlwzKXszlCxv3vnfXV665kospKi1lm4/4bEt28t7xNVFFyWR1wcgYSsMRKx3e/371h3j82N1hYxlkKWvAFMmABTE1Zo5tG0Uaz9+LFaAmTW44M03H/Lbm0eafdcj75gEXHCl3S5up11x2iCC/LvApXRDHMYO8n1lEF2acrItcWL6IWMUYREsm/jKIm6eKnyegtrJEEimwb8/T6BAvhWtThLHg+h5ASVLv6Xtf7AfYB9mu3FJ9jw2gKZ8XaLUudWXJICc/zdYIcoceBHyHBnpxS24clNnNRi+PYoWkTrJ3xb1HLWrRjrpX6LifrHrrGUj+ZnbrLttRnc5EyYe5AF/wj7o6DKc8NBP/vTJDX20vUijdJougwY1axT/f3DKcaMyUk5oL58rOMG9qcAOOS1QcBpgxTAAUeMYynqQYcjK32HXn1+Clqve//QC1XS/tjkaXC8EmOGm7ihziWeOlGuZvsbUvNsfUyt+9SsWDuQjEOlhl2SGhKnsAQj+bg5cy+6/aoMDNyh/QjBCBBep7oiB53anVGm1Cs8Y4q9LcWe1/BnfPeqfOG84fioD1LuV5Hsm+8ldxmJqLvdZ7WittM6zhGRtFmUnXNPHZ48DVsb+Sd63oVoE1XT3jdUnJ2sDJ4UODRU+C1MIi7C7Ha3gwF7m6GfhruSf3Gsk9PupWbhpe8KN/JiSmdHGcZXhrHQf/HfQNpgIPoAHVp2xnkLdP+0aVoc/DSPKOGbt87ts7gdo06SrOH406ok9JRS2jB8fBGAtVyKa/+mH4G+LJNfrzYVyGfTGgmu6ve2UmNeP4cyA4wIUO8C9vsCCAnf4NOtODc+td6VwFv49HSEQgZlrCFQEsUIQZ6THxCzttTZ+gXCYxAj0AzgL8RGq2j1VymZw7Tb7kSOPQNqodt47aYftIgSdsJiz/G4os1c/HlGWB7YI5BaXDjm7E8JdowSaaU6bpnLTP8kYUzmlSpRnhCp+zEZ9Y/16XYc9fY799hP3HODfEGMEO2k9kLdnp5eYrf7o5/et59Xq2NDL/JoI/uPzXpk3ikSfbb7cM+q36dqtdRVGVxEi+FgYPol5dD9/e0mQ68+gBr0OqZv0N2T8/9c38l8gw275C51mVjdnpzGsQ3aQrpnqQd0v2Auh+wnvartG9R+1alYiq61Z/OYs8vbP65Ff8L44isjA==')));
+//*/
+
+$args = array(
+	SVN_XSLT,
+	SVN_REPOS_NAME,
+	SVN_HOMEPAGE,
+	SVN_RSS_DESC,
+	SVN_RSS_LANG,
+	SVN_RSS_COPYRIGHT,
+	SVN_RSS_EMAIL_DOMAIN,
+	SVN_REPOS,
+	SVN_RSS_WEBMASTER,
+	SVN_RSS_URL_VIEW_REV,
+	date('r'),
+);
+
+function cleanup()
+{
+	global $xslt_file, $in_file, $out_file;
+
+	if (file_exists($xslt_file))
+	{
+		unlink($xslt_file);
+	}
+
+	if (file_exists($in_file))
+	{
+		unlink($in_file);
+	}
+
+	if (file_exists($out_file))
+	{
+		unlink($out_file);
+	}
+
+//	exit;
+}
+
+//pcntl_signal(SIGTERM, 'cleanup');
+//pcntl_signal(SIGHUP,  'cleanup');
+//register_shutdown_function('cleanup');
+
+$xslt_file = tempnam(TMP, 'svn-rss-xslt-');
+$in_file = tempnam(TMP, 'svn-rss-in-');
+$out_file = tempnam(TMP, 'svn-rss-out-');
+
+file_put_contents($xslt_file, call_user_func_array('sprintf', $args));
+
+exec(sprintf(CMD_SVN_LOG, SVN_REPOS, $in_file));
+exec(sprintf(CMD_XSLTPROC, $xslt_file, $in_file, $out_file));
+exec(sprintf(CMD_SYNC, $out_file));
+
+cleanup();
+
+?>

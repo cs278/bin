@@ -1,0 +1,33 @@
+#!/usr/bin/php
+<?php
+
+define('CARD', 0);
+define('PARAM', 'name="Master Playback Volume"');
+define('VOL_MAX', 31);
+
+define('AMIXER', '/usr/bin/amixer');
+define('GET_CMD', AMIXER . ' -c %1$s cget %2$s | tail -n 1 | awk \'{ print $2; }\' | sed \'s/values=//\' | xargs -d "," | head -n 1 | awk \'{ print $1; }\'');
+define('SET_CMD', AMIXER . ' -c %1$s -q cset %2$s %3$s > /dev/null 2>&1');
+
+if (isset($argv[1]))
+{
+	$vol = intval($argv[1]);
+
+	if (substr($argv[1], -1) == '%')
+	{
+		$vol = round($vol * VOL_MAX / 100);
+	}
+	$result = exec(sprintf(SET_CMD, CARD, PARAM, $vol) . '; echo $?');
+}
+else
+{
+	$result = 0;
+}
+$result = intval($result);
+echo sprintf(GET_CMD, CARD, PARAM);
+$cur_vol = exec(sprintf(GET_CMD, CARD, PARAM));
+
+echo $cur_vol, "\n";
+
+exit($result);
+?>

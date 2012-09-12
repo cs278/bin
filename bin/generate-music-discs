@@ -1,0 +1,88 @@
+#!/usr/bin/php
+<?php
+/**
+ * VERSION	- Version of script and format
+ * DISC_X_OF_Y	- Contains Date, Generation Host, etc.
+ * SHA1SUMS	- SHA1 sum of each file
+ * MANIFEST	- Hash of file and size
+ * LS		- Output of ls -l or something more detailed
+ * DATA/	- Actual Data
+ * 
+ * GPG Signatures of each meta file
+ */
+
+define('DISC_VERSION', '1.0');
+define('INFO_SUMS', 'SUMS');
+define('DATA_SUMS', 'MANIFEST');
+define('GPG_SIGNING_KEY', '0x6BAE4AFB');
+
+$manifest = new SimpleXMLElement(stream_get_contents(STDIN));
+
+$base_dir = realpath('.');
+
+@mkdir($base_dir); // temp
+
+$disc = 0;
+define('TIME', time());
+
+$source = realpath($manifest['base']);
+
+function gpg_sign($file)
+{
+//	my_exec(sprintf('/usr/bin/gpg --yes --batch --homedir /root/.gnupg/ --local-user %2$s --detach-sign --armour %1$s', escapeshellarg($file), escapeshellarg(GPG_SIGNING_KEY)));
+	my_exec(sprintf('/usr/bin/gpg --yes --batch --local-user %2$s --detach-sign --armour %1$s', escapeshellarg($file), escapeshellarg(GPG_SIGNING_KEY)));
+}
+
+function make_iso($path, $iso, $label)
+{
+	my_exec(sprintf('/usr/bin/genisoimage -input-charset utf8 -r -J -graft-points -V %3$s -o %2$s -sysid LINUX -- %1$s', escapeshellarg($path), escapeshellarg($iso), escapeshellarg($label)));
+}
+
+function my_exec($cmd)
+{
+	echo $cmd, "\n";
+	return shell_exec($cmd);
+}
+
+foreach ($manifest->block as $block)
+{
+	$dir = $base_dir . '/' . ++$disc;
+
+	mkdir($dir);
+	mkdir($dir . '/DATA');
+
+	file_put_contents($dir . '/INFO', sprintf("Label: Music\nDisc: %1\$u\nDiscs: %2\$u\nVersion: %3\$s\nDate: %4\$s\nHost: %5\$s\nKey: %6\$s\n",
+		$disc,
+		sizeof($manifest->block),
+		DISC_VERSION,
+		date(DATE_RFC822, TIME),
+		php_uname('a'),
+		GPG_SIGNING_KEY
+	));
+	file_put_contents($dir . '/VERSION', DISC_VERSION . "\n");
+	file_put_contents($dir . '/' . DATA_SUMS, '');
+	file_put_contents($dir . '/' . INFO_SUMS, '');
+	file_put_contents(sprintf($dir . '/DISC_%1$u_OF_%2$u', $disc, sizeof($manifest->block)), date(DATE_RFC822, TIME) . "\n");
+
+	foreach ($block->entry as $entry)
+	{
+		$entry = trim($entry);
+
+//		my_exec(sprintf('/bin/cp -uR %s %s/.', escapeshellarg($source . '/' . $entry), escapeshellarg($dir . '/DATA')));
+		my_exec(sprintf('/bin/mkdir -p %s', escapeshellarg($dir . '/DATA/' . $entry)));
+		my_exec(sprintf('/usr/bin/rsync --archive --delete %s %s', escapeshellarg($source . '/' . $entry), escapeshellarg($dir . '/DATA/' . dirname($entry) . '/.')));
+		my_exec(sprintf('cd %1$s && /usr/bin/find %2$s -type f -exec sha1sum \'{}\' \; | /bin/sed \'s,\([a-z0-9]*\)  ,\1  DATA/,\' >> %3$s', escapeshellarg($source), escapeshellarg($entry), escapeshellarg($dir . '/' . DATA_SUMS)));
+	}
+
+	foreach (array('INFO', 'VERSION', DATA_SUMS, sprintf('DISC_%1$u_OF_%2$u', $disc, sizeof($manifest->block))) as $file)
+	{
+		my_exec(sprintf('cd %2$s && /usr/bin/sha512sum %1$s >> %3$s', escapeshellarg($file), escapeshellarg($dir), escapeshellarg(INFO_SUMS)));
+	}
+
+	// Do the signing
+	gpg_sign($dir . '/INFO');
+	gpg_sign($dir . '/' . INFO_SUMS);
+	gpg_sign($dir . '/' . DATA_SUMS);
+
+	make_iso($dir, $base_dir . '/' . $disc . '.iso', sprintf('Music - %1$u of %2$u - %3$s', $disc, sizeof($manifest->block), date('Ymd')));
+}
