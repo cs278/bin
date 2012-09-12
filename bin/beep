@@ -1,0 +1,17 @@
+#!/bin/sh
+# Pass number of times to beep; 1 is default. Pass 0 to beep forever.
+N=$1
+if [ -z "$N" ]; then
+	N=1
+fi
+
+while :; do
+	# Use system beep command if available
+	/usr/bin/beep $@ 2>/dev/null || printf \\a
+	N=$(expr $N - 1)
+	if [ "$N" != 0 ]; then
+		sleep 1
+	else
+		break
+	fi
+done

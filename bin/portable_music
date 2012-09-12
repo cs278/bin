@@ -1,0 +1,70 @@
+#!/usr/bin/php
+<?php
+
+function filename_track_numbers($filename)
+{
+	$filename = basename($filename); // To be sure to be sure
+	return preg_match('#^[0-9]+ - .+$#', $filename) ? true : false;
+}
+
+$src = '/home/chris/multimedia/music/MP3/';
+$dst = '/home/chris/multimedia/music/portable/';
+
+
+chdir($src);
+
+# Create Directories
+system('find . -maxdepth 2 -mindepth 2 -type d -exec mkdir -p "' . $dst . '/{}" \;');
+
+$files = array();
+exec('find . -maxdepth 3 -mindepth 3 -type f -print', $files);
+
+
+foreach ($files as $file)
+{
+	$file = substr($file, 2); // Remove the './'
+	$src_file = $src . $file;
+	$dst_file = $dst . $file;
+
+//	echo $src_file, "\n", $dst_file, "\n\n";
+
+	system(sprintf('ln -s %1$s %2$s', escapeshellarg($src_file), escapeshellarg($dst_file)), $result);
+
+	if ($result)
+	{
+		echo $src_file, "\n", $dst_file, "\n\n";
+	}
+}
+
+
+$dirs = array();
+exec('find . -maxdepth 3 -mindepth 3 -type d -print', $dirs);
+
+foreach (array_reverse($dirs) as $dir)
+{
+	$dir = substr($dir, 2); // Remove the './'
+	$dst_prefix = basename($dir) . ' - ';
+
+	$src_dir = $src . '/' . $dir;
+	$dst_dir = $dst . implode('/', array_slice(explode('/', $dir), 0, -1));
+
+	$src_files = array();
+	exec(sprintf('find %s -maxdepth 1 -type f -print', escapeshellarg($src_dir)), $src_files);
+
+//	print_r($src_files);
+
+	foreach ($src_files as $src_file)
+	{
+		$dst_file = $dst_dir . '/' . $dst_prefix .  basename($src_file);
+
+//		echo "Link $dst_file to $src_file", "\n";
+
+		system(sprintf('ln -s %1$s %2$s', escapeshellarg($src_file), escapeshellarg($dst_file)), $result);
+	}
+
+//	echo $dir, "\n";
+}
+
+
+?>
+

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+#SRC=$(readlink -f "$1");
+#DST=$(echo "$SRC" | sed 's,FLAC,MP3-Low,');
+#PRESET=medium
+PRESET=insane
+
+#medium           - Medium
+#standard         - Standard
+#extreme          - Extreme
+#insane           - Insane
+
+
+#mkdir -p "$DST";
+
+#for file in "$SRC"/*; do
+find "$@" -type f -name "*.flac" | while read file;
+do
+	file=$(readlink -f "$file");
+	filename=$(basename "$file" | sed 's,.flac$,.mp3,');
+#	dst=$(dirname "$file" | sed 's,FLAC,MP3-Low,')
+	dst=$(dirname "$file" | sed 's,FLAC,MP3,')
+
+	mkdir -p "$dst"
+
+
+	if [ ! -f "${dst}/${filename}" ];
+	then
+#		echo "Converting $file to ${dst}/${filename} ...";
+
+		gst-launch-0.10 filesrc location="${file}" ! flacdec ! audioconvert ! lame preset=$PRESET ! id3mux name=tag write-v2=true write-v1=true ! filesink location="${dst}/${filename}" &
+	fi
+
+	#echo "... done.";
+done;
+

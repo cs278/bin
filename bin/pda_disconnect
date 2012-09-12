@@ -1,0 +1,3 @@
+#!/bin/bash
+killall dccm > /dev/null
+sleep 2

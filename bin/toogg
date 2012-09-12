@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+#find "$1" -name '*.mp3' -type f -exec mpg321 '{}' -w - | oggenc --quiet -q 6 -o "./{}.ogg" - \;
+
+#find "$1" -name '*.mp3' -type f -exec mpg321 '{}' -w - | oggenc - --\;

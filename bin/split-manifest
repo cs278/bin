@@ -1,0 +1,88 @@
+#!/usr/bin/php
+<?php
+
+$dir = realpath($argv[1]);
+
+$min = (int) $argv[2];
+$max = (int) $argv[3];
+$target = (int) $argv[4];
+
+$blocks = array();
+
+function getDirSize($path)
+{
+	$size = shell_exec(sprintf('/usr/bin/du -s %s', escapeshellarg($path)));
+
+	return (int) $size;
+}
+
+$dirs = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir), RecursiveIteratorIterator::SELF_FIRST);
+
+$units = array();
+
+foreach ($dirs as $path => $object)
+{
+	if (!$object->isDir())
+	{
+		continue;
+	}
+
+	$depth = $dirs->getDepth();
+
+	if ($depth < $min || $max < $depth)
+	{
+		continue;
+	}
+
+	$units[$path] = getDirSize($path);
+}
+
+
+arsort($units, SORT_NUMERIC);
+
+$total = $block = 0;
+
+while (!empty($units))
+{
+	$blocks[$block] = array('size' => 0, 'paths' => array());
+
+	foreach ($units as $path => $size)
+	{
+		if ($size > $target)
+		{
+			throw new Exception('Unit ["' . $path . '"] size is greater than target');
+		}
+
+		if ($size > ($target - $blocks[$block]['size']))
+		{
+			continue;
+		}
+
+		$blocks[$block]['paths'][] = str_replace($dir . '/', '', realpath($path));
+		$blocks[$block]['size'] += $size;
+
+		unset($units[$path]);
+	}
+
+	$blocks[$block]['use'] = floor(($blocks[$block]['size'] / $target) * 100);
+
+	$total += $blocks[$block]['size'];
+
+	$block++;
+}
+
+echo '<', '?xml version="1.0"?', ">\n";
+echo "<manifest base=\"$dir\" target=\"$target\" use=\"", floor(($total / ($target * sizeof($blocks))) * 100), "\">\n";
+
+foreach ($blocks as $block => $units)
+{
+	echo "\t<block id=\"$block\" size=\"${units['size']}\" use=\"${units['use']}\">\n";
+
+	foreach ($units['paths'] as $path)
+	{
+		echo "\t\t<entry><![CDATA[$path]]></entry>\n";
+	}
+	echo "\t</block>\n";
+}
+
+echo "</manifest>\n";
