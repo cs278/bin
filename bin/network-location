@@ -1,0 +1,47 @@
+#!/bin/sh
+
+##
+## Attempts to identify the network the machine is currently connected to.
+##
+
+set -e
+#set -x
+
+# Pull out some network information
+DEFAULT_GW_IP=$(ip route list | grep default | cut -d' ' -f3)
+DEFAULT_GW_MAC=$(arp -n $DEFAULT_GW_IP | sed '1d' | awk '{ print $3 }')
+
+ON=
+
+# Portable globing
+# http://www.etalabs.net/sh_tricks.html
+fnmatch () { case "$2" in $1) return 0 ;; *) return 1 ;; esac ; }
+
+on()
+{
+	if [ -z "$ON" ]
+	then
+		ON=" $1 "
+	elif ! fnmatch "* $1 *" "$ON";
+	then
+		echo ">>> Adding $1 to '$ON'"
+		ON="$ON$1 "
+	fi
+}
+
+if [ "$DEFAULT_GW_MAC" = "00:1e:e5:5b:69:fc" ];
+then
+	on flat
+fi
+
+if [ "$DEFAULT_GW_MAC" = "xxxxxxxxxxxxxxxxx" ];
+then
+	on home
+fi
+
+if [ "$DEFAULT_GW_MAC" = "00:17:c5:67:18:34" ];
+then
+	on work
+fi
+
+echo $ON
