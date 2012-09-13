@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ##
 ## Apply pretty formatting to JSON.
@@ -6,9 +6,12 @@
 ## Uses json.tool from Python but kills trailing spaces.
 ##
 
+set -e
+set -o pipefail
+
 if [ $# -gt 0 ];
 then
-	python -mjson.tool "$1" 2>/dev/null | sed 's/, $/,/'
+	python -mjson.tool "$1" | sed 's/, $/,/'
 else
-	python -mjson.tool 2>/dev/null | sed 's/, $/,/'
+	python -mjson.tool | sed 's/, $/,/'
 fi
