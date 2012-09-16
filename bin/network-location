@@ -51,4 +51,10 @@ then
 	on work
 fi
 
-echo $ON
+if [ -n "$1" ];
+then
+	is_on "$1"
+	exit $?
+else
+	echo $ON
+fi
