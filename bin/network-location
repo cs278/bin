@@ -22,11 +22,18 @@ on()
 	if [ -z "$ON" ]
 	then
 		ON=" $1 "
-	elif ! fnmatch "* $1 *" "$ON";
+	elif ! is_on "$1";
 	then
 		echo ">>> Adding $1 to '$ON'"
 		ON="$ON$1 "
 	fi
+}
+
+is_on()
+{
+	fnmatch "* $1 *" "$ON"
+
+	return $?
 }
 
 if [ "$DEFAULT_GW_MAC" = "00:1e:e5:5b:69:fc" ];
