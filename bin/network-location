@@ -36,19 +36,25 @@ is_on()
 	return $?
 }
 
-if [ "$DEFAULT_GW_MAC" = "00:1e:e5:5b:69:fc" ];
+if [ -z "$NETWORK_LOCATION" ];
 then
-	on flat
-fi
+	if [ "$DEFAULT_GW_MAC" = "00:1e:e5:5b:69:fc" ];
+	then
+		on flat
+	fi
 
-if [ "$DEFAULT_GW_MAC" = "xxxxxxxxxxxxxxxxx" ];
-then
-	on home
-fi
+	if [ "$DEFAULT_GW_MAC" = "xxxxxxxxxxxxxxxxx" ];
+	then
+		on home
+	fi
 
-if [ "$DEFAULT_GW_MAC" = "00:17:c5:67:18:34" ];
-then
-	on work
+	if [ "$DEFAULT_GW_MAC" = "00:17:c5:67:18:34" ];
+	then
+		on work
+	fi
+else
+	# Allow mocking the network location
+	ON=" $NETWORK_LOCATION "
 fi
 
 if [ -n "$1" ];
