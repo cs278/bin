@@ -1,0 +1,14 @@
+#!/bin/sh
+
+##
+## Test if a specified Python module is available.
+##
+
+PYTHON=$(which python)
+
+[ -n "$PYTHON" ] && [ -x "$PYTHON" ] && "$PYTHON" -c "import sys
+try:
+	import $1
+	sys.exit(0)
+except ImportError:
+	sys.exit(1)"
