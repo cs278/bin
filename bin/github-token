@@ -1,0 +1,96 @@
+#!/bin/bash
+
+##
+##  Copyright (C) 2012 Chris Smith
+##
+##  Permission is hereby granted, free of charge, to any person obtaining a
+##  copy of this software and associated documentation files (the "Software"),
+##  to deal in the Software without restriction, including without limitation
+##  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+##  and/or sell copies of the Software, and to permit persons to whom the
+##  Software is furnished to do so, subject to the following conditions:
+##
+##  The above copyright notice and this permission notice shall be included in
+##  all copies or substantial portions of the Software.
+##
+##  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+##  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+##  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+##  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+##  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+##  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+##  DEALINGS IN THE SOFTWARE.
+##
+
+username="${GITHUB_USERNAME:-}"
+password="${GITHUB_PASSWORD:-}"
+endpoint="${GITHUB_ENDPOINT:-https://api.github.com}"
+
+if [ -z "$username" ] && which git &>/dev/null;
+then
+	# Try and pull GitHub username from git config.
+	username=$(git config --get github.user)
+fi
+
+usage()
+{
+	echo "Usage: `basename $0` [-u username] [-s scope] [-l label] [-m url] [-e endpoint]"
+	echo "Arguments:"
+	echo " -h             This help"
+	echo " -u username    GitHub user to authenticate as"
+	echo " -s scope       Scope to grant, can be repeated"
+	echo " -l label       Label to give application"
+	echo " -m url         URL to application"
+	echo " -e endpoint    GitHub API endpoint (defaults to https://api.github.com)"
+}
+
+while getopts "u:s:l:m:e:h" opt;
+do
+	case $opt in
+		u)
+			username="$OPTARG"
+		;;
+		s)
+			scopes="$OPTARG $scopes"
+		;;
+		l)
+			label="$OPTARG"
+		;;
+		m)
+			url="$OPTARG"
+		;;
+		e)
+			endpoint="$OPTARG"
+		;;
+		h)
+			usage
+			exit 0
+		;;
+		\?)
+			usage >&2
+			exit 1
+		;;
+		:)
+			echo "Option -$OPTARG requires an argument." >&2
+			exit 1
+		;;
+	esac
+done
+
+if [ -z "$username" ];
+then
+	echo "Please supply a username." >&2
+	exit 1
+fi
+
+for scope in $scopes;
+do
+	if [ -n "$scopes_json" ];
+	then
+		scopes_json="$scopes_json,"
+	fi
+
+	scopes_json="$scopes_json\"$scope\""
+done
+
+curl -u "$username" -d "{\"scopes\":[$scopes_json],\"note\":\"$label\",\"note_url\":\"$url\"}" $endpoint/authorizations
