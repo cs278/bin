@@ -1,0 +1,26 @@
+#!/bin/bash
+
+##
+## Minify JSON by removing pretty formatting.
+##
+
+set -e
+set -o pipefail
+
+if [ $# -gt 0 ];
+then
+	SRC="$1"
+else
+	SRC="/dev/stdin"
+fi
+
+if which php &>/dev/null;
+then
+	php -r 'echo json_encode(json_decode(stream_get_contents(STDIN)));' < "$SRC"
+	echo
+else
+	# Remove all leading whitespace and new line characters
+	sed -e 's/^[ \t]*//' < "$SRC" | tr -d '\n'
+	# Add a blank line to the end
+	echo
+fi
