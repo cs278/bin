@@ -20,7 +20,7 @@ fi
 if which pjson &>/dev/null && pyhas pygments.lexers JSONLexer && test -t 1;
 then
 	# sed is used to remove any trailing empty lines
-	pjson "$SRC" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}'
+	pjson < "$SRC" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}'
 elif pyhas json.tool;
 then
 	python -mjson.tool "$SRC" | sed 's/, $/,/'
