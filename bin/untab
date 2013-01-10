@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -e
+
+trap 'rm -f "$tmp"' EXIT
+
+size=4
+expand="expand -t$size -i"
+exit=0
+
+while [ -n "$1" ];
+do
+	if [ -f "$1" ];
+	then
+		src="$1"
+		tmp=$(mktemp)
+
+		# Expand tabs to spaces
+		$expand "$src" >> "$tmp"
+
+		# Put new content in original file
+		cat "$tmp" > "$src"
+
+		rm "$tmp"
+	else
+		echo "Could not read $1" >&2
+		exit=1
+	fi
+
+	shift
+done
+
+exit $exit
