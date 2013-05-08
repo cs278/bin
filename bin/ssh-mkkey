@@ -1,0 +1,14 @@
+#!/bin/sh
+
+comment="${USER:-$LOGNAME}@`hostname --fqdn`"
+dst="$HOME/.ssh/$comment"
+bits=${1:-8192}
+
+if [ -f "$dst" ];
+then
+	echo "File already exists at '$dst'" >&2
+	exit 1
+fi
+
+ssh-keygen -t rsa -b $bits -C "$comment" -f "$dst"
+cat "$dst.pub"
