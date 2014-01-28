@@ -1,0 +1,13 @@
+#!/bin/sh
+
+##
+## Merges the supplied PDF files and prints resulting document to STDOUT.
+##
+
+if ! command -v gs >/dev/null;
+then
+	echo "Ghostscript not found." >&2
+	exit 1
+fi
+
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- "$@"
