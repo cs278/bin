@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Remove top and bottom border, convert header/row separator
+sed '1d; $d; 3 s/^+-/| /; 3 s/-+$/:|/; 3 s/-+-/:| /g'
