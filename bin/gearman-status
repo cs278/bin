@@ -26,7 +26,11 @@ fi
 host=${1:-localhost}
 port=${2:-4730}
 
-nc -z $host $port &&
+nc -z $host $port >/dev/null || {
+	echo "Cannot connect to gearman on $host:$port" >&2
+	exit 1
+}
+
 {
 	printf "%s\t%s\t%s\t%s\n" "Function" "Jobs" "Running" "Workers";
 	printf "%s\n" "status" | nc -i 1 $host $port | sed "\$d"
