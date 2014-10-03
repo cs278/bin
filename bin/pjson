@@ -24,7 +24,10 @@ import sys
 from StringIO import StringIO
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
-from pygments.lexers import JSONLexer
+try:
+	from pygments.lexers.web import JsonLexer
+except ImportError:
+	from pygments.lexers import JSONLexer as JsonLexer
 
 def format_json_code(code):
     """
@@ -41,7 +44,7 @@ def color_yo_shit(code):
     """
     Calls pygments.highlight to color yo shit
     """
-    return highlight(code, JSONLexer(), TerminalFormatter())
+    return highlight(code, JsonLexer(), TerminalFormatter())
 
 if __name__ == '__main__':
     code = format_json_code(sys.stdin.read())
