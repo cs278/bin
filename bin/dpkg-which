@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+set -u
+
+if ! command -v dpkg >/dev/null 2>&1;
+then
+	echo "dpkg not available." >&2
+	exit 1
+fi
+
+if [ -z "${1:-}" ];
+then
+	echo "Usage: `basename $0` <command>" >&2
+	exit 2
+fi
+
+dpkg -S "$(which $1)"
