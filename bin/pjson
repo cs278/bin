@@ -18,8 +18,12 @@ Usage::
 Author: Igor Guerrero <igfgt1@gmail.com>, 2012
 """
 
-import json
 import sys
+
+try:
+	import commentjson as json
+except ImportError:
+	import json
 
 from StringIO import StringIO
 from pygments import highlight
