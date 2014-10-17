@@ -6,9 +6,17 @@
 
 set -eu
 
-OUT=/tmp/cronic.out.$$
-ERR=/tmp/cronic.err.$$
-TRACE=/tmp/cronic.trace.$$
+cleanup() {
+	[ ! -z "$OUT" ] && rm -f "$OUT"
+	[ ! -z "$ERR" ] && rm -f "$ERR"
+	[ ! -z "$TRACE" ] && rm -f "$TRACE"
+}
+
+trap cleanup EXIT
+
+OUT=$(mktemp --tmpdir "cronic.out.$$.XXXXXX")
+ERR=$(mktemp --tmpdir "cronic.err.$$.XXXXXX")
+TRACE=$(mktemp --tmpdir "cronic.trace.$$.XXXXXX")
 
 set +e
 "$@" >$OUT 2>$TRACE
@@ -42,7 +50,3 @@ if [ $RESULT -ne 0 -o -s "$ERR" ]
         cat "$TRACE"
     fi
 fi
-
-rm -f "$OUT"
-rm -f "$ERR"
-rm -f "$TRACE"
