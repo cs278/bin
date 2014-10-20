@@ -1,0 +1,11 @@
+#!/bin/sh
+
+##
+## Simple script that imports the users .profile configration into the current environment.
+##
+## Combine this with cronjobs to get a proper environment.
+##
+
+[ -f ~/.profile ] && . ~/.profile
+
+exec "$@"
