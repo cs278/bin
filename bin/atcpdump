@@ -1,0 +1,9 @@
+#!/bin/sh
+
+##
+## tcpdump ASCII reppresentation of all traffic seen.
+##
+## Useful for watching HTTP.
+##
+
+exec tcpdump -s 0 -A "$@"
