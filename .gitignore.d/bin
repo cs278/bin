@@ -1,5 +1,6 @@
 *
 !/bin
+!/bin/atcpdump
 !/bin/bebox-reboot
 !/bin/beep
 !/bin/cpu-cores
