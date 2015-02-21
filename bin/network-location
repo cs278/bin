@@ -43,9 +43,9 @@ then
 		on flat
 	fi
 
-	if [ "$DEFAULT_GW_MAC" = "xxxxxxxxxxxxxxxxx" ];
+	if [ "$DEFAULT_GW_MAC" = "00:18:39:5b:50:a0" ];
 	then
-		on home
+		on rents
 	fi
 
 	if [ "$DEFAULT_GW_MAC" = "00:17:c5:67:18:34" ];
