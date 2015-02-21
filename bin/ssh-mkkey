@@ -4,11 +4,18 @@ comment="${USER:-$LOGNAME}@`hostname --fqdn`"
 dst="$HOME/.ssh/$comment"
 bits=${1:-8192}
 
+if [ $bits -lt 1024 ];
+then
+	bits=$(( 2 ** (9 + $bits) ))
+fi
+
 if [ -f "$dst" ];
 then
 	echo "File already exists at '$dst'" >&2
 	exit 1
 fi
+
+echo "Creating an $bits bit RSA key."
 
 ssh-keygen -t rsa -b $bits -C "$comment" -f "$dst"
 cat "$dst.pub"
