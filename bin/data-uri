@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+set -u
+
+if [ -z "${1:-}" ];
+then
+	trap 'rm -f "$input"' EXIT
+
+	input=$(mktemp)
+
+	cat > "$input"
+else
+	input="$1"
+fi
+
+mime() {
+	file --brief --mime-type -
+}
+
+encode() {
+	base64 --wrap=0
+}
+
+printf 'data:%s;base64,%s\n' $(mime < "$input") $(encode < "$input")
