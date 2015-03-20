@@ -5,6 +5,7 @@
 !/bin/beep
 !/bin/cpu-cores
 !/bin/cronic
+!/bin/data-uri
 !/bin/dpkg-which
 !/bin/flac-to-mp3
 !/bin/gearman-status
