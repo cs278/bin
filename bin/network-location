@@ -7,9 +7,13 @@
 set -e
 #set -x
 
+ip2mac() {
+	ip neigh | grep "^$1" | awk '{ print $5 }'
+}
+
 # Pull out some network information
 DEFAULT_GW_IP=$(ip route list | grep default | cut -d' ' -f3)
-DEFAULT_GW_MAC=$(arp -n $DEFAULT_GW_IP | sed '1d' | awk '{ print $3 }')
+DEFAULT_GW_MAC=$(ip2mac $DEFAULT_GW_IP)
 
 ON=
 
