@@ -4,7 +4,7 @@ tmpdir=$(mktemp --directory)
 
 cd "$tmpdir"
 
-$SHELL
+PS1_TAG=tmpdir $SHELL
 
 if ! rmdir "$tmpdir" >/dev/null 2>&1;
 then
