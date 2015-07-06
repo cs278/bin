@@ -22,6 +22,7 @@
 !/bin/pyhas
 !/bin/split-manifest
 !/bin/ssh-mkkey
+!/bin/tmpdir
 !/bin/unswap
 !/bin/untab
 !/bin/whiteboard-cleanup
