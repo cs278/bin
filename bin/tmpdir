@@ -1,0 +1,18 @@
+#!/bin/sh
+
+tmpdir=$(mktemp --directory)
+
+cd "$tmpdir"
+
+$SHELL
+
+if ! rmdir "$tmpdir" >/dev/null 2>&1;
+then
+	read -p "Delete non-empty temporary directory \`$tmpdir\`? " -r
+	echo
+
+	if [ "$REPLY" = "Y" ] || [ "$REPLY" = "y" ];
+	then
+		rm -r "$tmpdir"
+	fi
+fi
