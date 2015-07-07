@@ -8,10 +8,9 @@ PS1_TAG=tmpdir $SHELL
 
 if ! rmdir "$tmpdir" >/dev/null 2>&1;
 then
-	read -p "Delete non-empty temporary directory \`$tmpdir\`? " -r
-	echo
+	read -r -p "Delete non-empty temporary directory \`$tmpdir\`? " reply
 
-	if [ "$REPLY" = "Y" ] || [ "$REPLY" = "y" ];
+	if [ "$reply" = "Y" ] || [ "$reply" = "y" ];
 	then
 		rm -r "$tmpdir"
 	fi
