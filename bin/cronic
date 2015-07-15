@@ -7,8 +7,8 @@
 set -eu
 
 cleanup() {
-	[ ! -z "$OUT" ] && rm -f "$OUT"
-	[ ! -z "$ERR" ] && rm -f "$ERR"
+	[ ! -z "${OUT:-}" ] && rm -f "$OUT"
+	[ ! -z "${ERR:-}" ] && rm -f "$ERR"
 }
 
 trap cleanup EXIT
