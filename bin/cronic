@@ -9,30 +9,17 @@ set -eu
 cleanup() {
 	[ ! -z "$OUT" ] && rm -f "$OUT"
 	[ ! -z "$ERR" ] && rm -f "$ERR"
-	[ ! -z "$TRACE" ] && rm -f "$TRACE"
 }
 
 trap cleanup EXIT
 
 OUT=$(mktemp --tmpdir "cronic.out.$$.XXXXXX")
 ERR=$(mktemp --tmpdir "cronic.err.$$.XXXXXX")
-TRACE=$(mktemp --tmpdir "cronic.trace.$$.XXXXXX")
 
 set +e
-"$@" >$OUT 2>$TRACE
+"$@" >$OUT 2>$ERR
 RESULT=$?
 set -e
-
-PATTERN="^${PS4:0:1}\\+${PS4:1}"
-if grep -aq "$PATTERN" $TRACE
-then
-    ! grep -av "$PATTERN" $TRACE > $ERR
-else
-    # Remove error file now as variable value is changing.
-    rm -f "$ERR"
-
-    ERR=$TRACE
-fi
 
 if [ $RESULT -ne 0 -o -s "$ERR" ]
     then
@@ -46,10 +33,4 @@ if [ $RESULT -ne 0 -o -s "$ERR" ]
     echo
     echo "STANDARD OUTPUT:"
     cat "$OUT"
-    if [ $TRACE != $ERR ]
-    then
-        echo
-        echo "TRACE-ERROR OUTPUT:"
-        cat "$TRACE"
-    fi
 fi
