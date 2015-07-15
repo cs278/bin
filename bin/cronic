@@ -28,6 +28,9 @@ if grep -aq "$PATTERN" $TRACE
 then
     ! grep -av "$PATTERN" $TRACE > $ERR
 else
+    # Remove error file now as variable value is changing.
+    rm -f "$ERR"
+
     ERR=$TRACE
 fi
 
