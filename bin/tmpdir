@@ -12,6 +12,6 @@ then
 
 	if [ "$reply" = "Y" ] || [ "$reply" = "y" ];
 	then
-		rm -r "$tmpdir"
+		rm --one-file-system -rf "$tmpdir"
 	fi
 fi
