@@ -1,0 +1,14 @@
+#!/bin/bash
+#where $1 is the input filename
+
+ournum=`gs -q -dNODISPLAY -c "("$1") (r) file runpdfbegin pdfpagecount = quit" 2>/dev/null`
+echo "Processing $ournum pages"
+counter=1
+while [ $counter -le $ournum ] ; do
+    newname=`echo $1 | sed -e s/\.pdf//g`
+    reallynewname=$newname-$counter.pdf
+    counterplus=$((counter+1))
+    # make the individual pdf page
+    yes | gs -dBATCH -sOutputFile="$reallynewname" -dFirstPage=$counter -dLastPage=$counter -sDEVICE=pdfwrite "$1"
+    counter=$counterplus
+done

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+gs -o new-design-sm.pdf -dDetectDuplicateImages=true -dEmbedAllFonts=true -dSubsetFonts=true -sDEVICE=pdfwrite
