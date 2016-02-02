@@ -1,0 +1,5 @@
+#!/bin/sh -eu
+
+# Convert Windows CRLF into *NIX LF
+
+sed -i 's/$//' "$@"

@@ -1,0 +1,5 @@
+#!/bin/sh -eu
+
+# Trim whitespace from the end of lines in a file.
+
+sed -i 's/[[:space:]]*$//g' "$@"
