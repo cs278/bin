@@ -6,7 +6,9 @@
 !/bin/cpu-cores
 !/bin/cronic
 !/bin/data-uri
+!/bin/dos2unix
 !/bin/dpkg-which
+!/bin/fix-eof-whitespace
 !/bin/flac-to-mp3
 !/bin/gearman-status
 !/bin/generate-music-discs
@@ -16,12 +18,17 @@
 !/bin/mysql-to-md
 !/bin/network-location
 !/bin/pdf-merge
+!/bin/pdf-optimise
+!/bin/pdf-split
 !/bin/pjson
 !/bin/portable_music
 !/bin/pyhas
+!/bin/random-int
+!/bin/random-string
 !/bin/split-manifest
 !/bin/ssh-mkkey
 !/bin/tmpdir
+!/bin/trim
 !/bin/unswap
 !/bin/untab
 !/bin/whiteboard-cleanup
