@@ -18,4 +18,4 @@ if [ $(echo "r=l($bits)/l(2); scale=0; 2 ^(r/1)" | bc -l) -ne $bits ]; then
 	exit 1
 fi
 
-head -c$(( $bits / 8 )) /dev/urandom | xxd -p -u | tr -d '\n'; echo
+head -c$(( $bits / 8 )) /dev/urandom | bin2hex

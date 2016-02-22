@@ -1,0 +1,20 @@
+#!/bin/sh -eu
+
+# Convert STDIN to raw hex on STDOUT
+#
+# This script attemtps to use od or xxd, the former being available on
+# a wider range of systems as part of GNU coreutils.
+
+if command -v od >/dev/null 2>&1; then
+	od -An -vtx1 | tr -d ' \n' | tr '[:lower:]' '[:upper:]'
+	echo
+
+	exit
+fi
+
+if command -v xxd >/dev/null 2>&1; then
+	xxd -p -u | tr -d '\n'
+	echo
+
+	exit
+fi
