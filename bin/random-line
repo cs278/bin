@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -eu
+
+file="$1"; shift
+max=$(wc -l "$file" | awk '{ print $1 }')
+line=$(random-int 1 "$max")
+
+sed -n "${line}p" "$file"
