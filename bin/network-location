@@ -52,7 +52,7 @@ then
 		on rents
 	fi
 
-	if [ "$DEFAULT_GW_MAC" = "00:17:c5:67:18:34" ];
+	if [ "$DEFAULT_GW_MAC" = "00:17:c5:67:18:34" ] || [ "$DEFAULT_GW_MAC" = "18:b1:69:0d:7e:8c" ];
 	then
 		on work
 	fi
