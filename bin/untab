@@ -4,7 +4,7 @@ set -e
 
 trap 'rm -f "$tmp"' EXIT
 
-size=4
+size=${SIZE:-4}
 expand="expand -t$size -i"
 exit=0
 
