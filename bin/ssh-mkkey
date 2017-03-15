@@ -17,5 +17,8 @@ fi
 
 echo "Creating an $bits bit RSA key."
 
-ssh-keygen -t rsa -b $bits -C "$comment" -f "$dst"
+# 512 rounds roughly is the same as a bcrypt work factor of 13
+# log2 (512 * 16) = 13
+# http://crypto.stackexchange.com/a/40910
+ssh-keygen -t rsa -b $bits -C "$comment" -f "$dst" -o -a 512
 cat "$dst.pub"
