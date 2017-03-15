@@ -1,8 +1,8 @@
 *
-!/bin
 !/bin/atcpdump
 !/bin/bebox-reboot
 !/bin/beep
+!/bin/bin2hex
 !/bin/cpu-cores
 !/bin/cronic
 !/bin/data-uri
@@ -24,6 +24,7 @@
 !/bin/portable_music
 !/bin/pyhas
 !/bin/random-int
+!/bin/random-line
 !/bin/random-string
 !/bin/split-manifest
 !/bin/ssh-mkkey
@@ -33,6 +34,5 @@
 !/bin/untab
 !/bin/whiteboard-cleanup
 !/bin/with-profile
-!/.gitignore.d
 !/.gitignore.d/bin
 !/README.md
