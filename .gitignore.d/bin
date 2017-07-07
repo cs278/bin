@@ -26,6 +26,7 @@
 !/bin/random-int
 !/bin/random-line
 !/bin/random-string
+!/bin/ses-from-iam
 !/bin/split-manifest
 !/bin/ssh-mkkey
 !/bin/tmpdir
