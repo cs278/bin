@@ -1,0 +1,10 @@
+#!/bin/sh
+
+length=${1:-4}
+
+while [ $length -gt 0 ]; do
+	printf '%s' $(random-int 0 9)
+	length=$(( $length - 1 ))
+done
+
+printf '\n'
