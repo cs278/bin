@@ -25,6 +25,7 @@
 !/bin/pyhas
 !/bin/random-int
 !/bin/random-line
+!/bin/random-pin
 !/bin/random-string
 !/bin/ses-from-iam
 !/bin/split-manifest
