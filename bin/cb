@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -euo pipefail
+
+main() {
+    if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+        usage
+        return 0
+    elif [ $# -gt 0 ]; then
+        usage >&2
+        return 1
+    fi
+
+    if [ -t 0 ]; then
+        xclip -sel clipboard -o
+    elif [ -t 1 ]; then
+        xclip -sel clipboard -i
+    else
+        # Being used in the middle of a pipeline, e.g. echo foo | cb | rev
+        trap 'if [ ! -z "${tmpfile:-}" ]; then rm -f "$tmpfile"; fi' EXIT
+
+        tmpfile=$(mktemp)
+        sponge "$tmpfile"
+        xclip -sel clipboard -i < "$tmpfile" > /dev/null
+        cat "$tmpfile"
+    fi
+}
+
+usage() {
+    echo "Usage: $0 [--help|-h]"
+    echo ""
+    echo "Examples"
+    echo "--------"
+    echo
+    echo "Put contents of clipboard in to a file:"
+    echo "cb > test.txt"
+    echo
+    echo "Read content of file in to the clipboard:"
+    echo "cb < test.txt"
+    echo
+    echo "Apply transformation to contents of clipboard:"
+    echo "cb | sort | cb"
+}
+
+main "$@"

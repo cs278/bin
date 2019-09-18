@@ -3,6 +3,7 @@
 !/bin/bebox-reboot
 !/bin/beep
 !/bin/bin2hex
+!/bin/cb
 !/bin/cpu-cores
 !/bin/cronic
 !/bin/data-uri
