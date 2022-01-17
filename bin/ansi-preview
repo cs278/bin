@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Previews many types of ANSI escapes.
+# https://linuxcommand.org/lc3_adv_tput.php
+
+tput bold; echo "This text is bold."; tput sgr0
+tput smul;  echo "This text is underlined.."; tput rmul
+tput blink; echo "This text is blinking (blink)."; tput sgr0
+tput rev; echo "This text is reversed."; tput sgr0
+tput smso; echo "This text is standout."; tput rmso
+tput sgr0
+echo
+
+printf "  Black  "
+printf "   Red   "
+printf "  Green  "
+printf " Yellow  "
+printf "  Blue   "
+printf " Magenta "
+printf "  Cyan   "
+printf "  White  "
+printf "\n"
+for fg_color in 0 1 2 3 4 5 6 7; do
+    set_foreground="$(tput setaf $fg_color)"
+    for bg_color in 0 1 2 3 4 5 6 7; do
+        set_background="$(tput setab $bg_color)"
+        printf "$set_background$set_foreground"
+        printf ' F:%s B:%s ' "$fg_color" "$bg_color"
+    done
+    tput sgr0
+    echo
+done

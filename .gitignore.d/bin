@@ -1,4 +1,5 @@
 *
+!/bin/ansi-preview
 !/bin/atcpdump
 !/bin/bebox-reboot
 !/bin/beep
