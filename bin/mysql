@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eu
+
+main() {
+    bin="$(basename "$0")"
+	cwd="$(pwd)"
+	self="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)/${bin}"
+	parent="$(which -a "$bin" | xargs -n1 readlink -f | grep --fixed-strings --invert-match "$(readlink -f "$self")" | head -n1)"
+
+	if [ "$cwd" = "$HOME" ]; then
+		exec "$parent" "$@"
+	fi
+
+	if [ "${cwd}/.my.cnf" ]; then
+		exec "$parent" --defaults-extra-file="${cwd}/.my.cnf" "$@"
+	fi
+
+	exec "$parent" "$@"
+}
+
+main "$@"

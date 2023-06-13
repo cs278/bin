@@ -17,6 +17,8 @@
 !/bin/github-token
 !/bin/json
 !/bin/jsonc
+!/bin/mysql
+!/bin/mysqldump
 !/bin/mysql-to-md
 !/bin/network-location
 !/bin/pdf-merge
