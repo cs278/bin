@@ -18,6 +18,7 @@
 !/bin/json
 !/bin/jsonc
 !/bin/mysql
+!/bin/mysqladmin
 !/bin/mysqldump
 !/bin/mysql-to-md
 !/bin/network-location
